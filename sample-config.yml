@@ -1,0 +1,13 @@
+---
+label_metrics:
+  - {"resource_name": "fave-vm-01", "resource_group": "fake-rg-01", "resource_type": "Microsoft.Compute/virtualMachines"}
+  - {"resource_name": "fave-vm-02", "resource_group": "fake-rg-02", "resource_type": "Microsoft.Compute/virtualMachines"}
+
+mock_metrics:
+  - name: "vm_status_up"
+    value: 1
+    labels: {"resource_name": "fake-vm-01", "resource_group": "fake-rg-01"}
+
+  - name: "vm_status_up"
+    value: 1
+    labels: {"resource_name": "fake-vm-02", "resource_group": "fake-rg-02"}
