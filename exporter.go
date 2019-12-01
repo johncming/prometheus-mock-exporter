@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"os"
@@ -30,6 +31,7 @@ type LabelMetric struct {
 
 type MockMetric struct {
 	Name   string            `yaml:"name"`
+	Type   string            `yaml:"type"`
 	Value  int               `yaml:"value"`
 	Labels map[string]string `yaml:"labels"`
 }
@@ -50,7 +52,7 @@ func loadConfig(path string) (conf *Config, err error) {
 func randomNumber() float64 {
 	seed := rand.NewSource(time.Now().UnixNano())
 	randWithSeed := rand.New(seed)
-	return randWithSeed.Float64() * 10
+	return randWithSeed.Float64()
 }
 
 func extractLabelMetrics() {
@@ -63,14 +65,32 @@ func extractLabelMetrics() {
 	}
 }
 
+func newCounter(mock MockMetric) {
+	metric := promauto.NewCounter(prometheus.CounterOpts{
+		Name:        mock.Name,
+		Help:        mock.Name,
+		ConstLabels: mock.Labels,
+	})
+	metric.Add(randomNumber() * 10) // increase result by one decimal point
+}
+
+func newGauge(mock MockMetric) {
+	metric := promauto.NewGauge(prometheus.GaugeOpts{
+		Name:        mock.Name,
+		Help:        mock.Name,
+		ConstLabels: mock.Labels,
+	})
+	metric.Set(math.Round(randomNumber())) // round to whole number precision
+}
+
 func extractMockMetrics() {
 	for _, mm := range appConf.MockMetrics {
-		metric := promauto.NewCounter(prometheus.CounterOpts{
-			Name:        mm.Name,
-			Help:        mm.Name,
-			ConstLabels: mm.Labels,
-		})
-		metric.Add(randomNumber())
+		switch mm.Type {
+		case "counter":
+			newCounter(mm)
+		case "gauge":
+			newGauge(mm)
+		}
 	}
 }
 
@@ -78,7 +98,6 @@ func recordMetrics() {
 	go func() {
 		extractLabelMetrics()
 		extractMockMetrics()
-		time.Sleep(1 * time.Minute)
 	}()
 }
 
