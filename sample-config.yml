@@ -5,9 +5,11 @@ label_metrics:
 
 mock_metrics:
   - name: "vm_status_up"
+    type: "gauge"
     value: 1
     labels: {"resource_name": "fake-vm-01", "resource_group": "fake-rg-01"}
 
   - name: "vm_status_up"
+    type: "gauge"
     value: 1
     labels: {"resource_name": "fake-vm-02", "resource_group": "fake-rg-02"}
