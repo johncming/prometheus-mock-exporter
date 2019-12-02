@@ -3,7 +3,6 @@ package main
 import (
 	"io/ioutil"
 	"log"
-	"math"
 	"math/rand"
 	"net/http"
 	"os"
@@ -80,7 +79,7 @@ func newGauge(mock MockMetric) {
 		Help:        mock.Name,
 		ConstLabels: mock.Labels,
 	})
-	metric.Set(math.Round(randomNumber())) // round to whole number precision
+	metric.Set(float64(mock.Value))
 }
 
 func extractMockMetrics() {
