@@ -57,8 +57,8 @@ func randomNumber() float64 {
 func extractLabelMetrics() {
 	for _, lm := range appConf.LabelMetrics {
 		promauto.NewCounter(prometheus.CounterOpts{
-			Name:        "resource_info",
-			Help:        "resource_info",
+			Name:        "azure_tag_info",
+			Help:        "azure_tag_info",
 			ConstLabels: lm,
 		})
 	}
