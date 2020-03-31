@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -13,6 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/log"
 )
 
 var (
@@ -56,11 +56,11 @@ func randomNumber() float64 {
 
 func extractLabelMetrics() {
 	for _, lm := range appConf.LabelMetrics {
-		promauto.NewCounter(prometheus.CounterOpts{
-			Name:        "azure_tag_info",
-			Help:        "azure_tag_info",
+		promauto.NewGauge(prometheus.GaugeOpts{
+			Name:        "mock_tag_info",
+			Help:        "mock_tag_info",
 			ConstLabels: lm,
-		})
+		}).Set(1)
 	}
 }
 
@@ -103,7 +103,7 @@ func recordMetrics() {
 func main() {
 	config, err := loadConfig("config.yml")
 	if err != nil {
-		log.Printf("error loading config: %s", err.Error())
+		log.Errorf("error loading config: %s", err.Error())
 		os.Exit(1)
 	}
 	appConf = config
@@ -111,5 +111,9 @@ func main() {
 	recordMetrics()
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+
+	log.Infof("prometheus-mock-exporter listening on port %v", 2112)
+	if err := http.ListenAndServe(":2112", nil); err != nil {
+		log.Fatalf("Error starting HTTP server: %v", err)
+	}
 }
